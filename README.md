@@ -25,7 +25,13 @@ To replicate the analysis performed in this paper, download the datasets into an
   2. DA_milo.R
 
 ### Preprocessing and clustering - Elmentaite
-  1. 
+  1. Elmentaite_Initial_clustering.r
+  2. Elmentaite_kArray.r
+  3. Elmentiate_kArray_sum.r
+  4. Elmentaite_Doublet_removal.r
+  5. Elmentaite_Fully_processed_clustering.r
+  6. Elmentaite_cluster_merging.r
+  7. Elmentaite_Interesting_cluster_analysis.r
 
 ### Genotyping and variability analysis
   1. Freebayes_variant_calling.bash
