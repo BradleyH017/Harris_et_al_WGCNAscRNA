@@ -28,7 +28,8 @@ To replicate the analysis performed in this paper, download the datasets into an
   1. 
 
 ### Genotyping and variability analysis
-  1. Comparing_Elmentaite_grouping_wrt_Smillie_grouping.r
-  2. 
+  1. Freebayes_variant_calling.bash
+  2. samtools_variant_calling.bash
+  3. Comparing_Elmentaite_grouping_wrt_Smillie_grouping.r
 
 Any questions about the code or analysis please contact bradley.harris@ed.ac.uk
