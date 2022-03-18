@@ -19,6 +19,8 @@ To replicate the analysis performed in this paper, download the datasets into an
   2. Pairwise_module_preservation_WGCNA.r
   3. Pariwise_module_preservation_WGCNA_summary.r
   4. Gene-gene_correlations_intracultuster_from_WGCNA.r
+  5. WGCNA_within_clusters.r
+  6. 
 
 ### Abundance testing - Smillie
   1. lm_of_cluster11.r
