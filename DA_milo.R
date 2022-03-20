@@ -65,53 +65,30 @@ sce <- as.SingleCellExperiment(seur.integrated)
 seur.milo <- Milo(sce)
 
 
-# For current best results, use_seurat_graph=F
-use_seurat_graph=F
+# Regenerate the nearest neighbour graph
+pathOut <- paste(pathOut, "DA/milo/reconstruct_kNN", sep = "/")
+# See how many PCs to consider
+library(SingleCellExperiment)
+library(scater)
+library(scran)
+k=250 # Same as for clustering
+sce <- runPCA(sce, ncomponents=50)
+percent.var <- attr(reducedDim(sce), "percentVar")
+plot(percent.var, log="y", xlab="PC", ylab="Variance explained (%)")
+chosen.elbow <- PCAtools::findElbowPoint(percent.var)
+chosen.elbow
+# This is shown to equal 4
+# Using the same k as have done for clustering
+d = as.numeric(chosen.elbow)
+set.seed(123)
+seur.milo <- buildGraph(seur.milo, k=k, d = d, reduced.dim = "PCA")
+# Now make the neighbourhoods
+seur.milo <- makeNhoods(seur.milo, prop = 0.1, k=k, d=d, refined = TRUE, reduced_dims = "PCA")
+pdf(file = paste(pathOut, "plots/Nhood_histogram.pdf", sep = "/"))
+plotNhoodSizeHist(seur.milo) 
+dev.off()
 
-if(use_seurat_graph == T){
-	pathOut <- paste(pathOut, "DA/milo/seurat_kNN", sep = "/")
-	# using the nearest neighbour graph I have already computed (kNN=250, d = nPCs = 50)
-	k=250
-	d=50
-	milo <- buildFromAdjacency(seur.integrated@graphs$integrated_snn, k = k, d=d, is.binary = F)
-	graph(seur.milo) <- graph(milo)
-	# Define the representative nearest neighbours graph
-	# This is done to reduce computation, and not testing every neighbourhood but those with representative cells
-	# As well as d and k, for sampling we need to define a few additional parameters:
-	#prop: the proportion of cells to randomly sample to start with. We suggest using prop=0.1 for datasets of less than 30k cells. For bigger datasets using prop=0.05 should be sufficient (and makes computation faster). - Using prop=0.1
-	#refined: indicates whether you want to use the sampling refinement algorith, or just pick cells at random. The default and recommended way to go is to use refinement. The only situation in which you might consider using random instead, is if you have batch corrected your data with a graph based correction algorithm, such as BBKNN, but the results of DA testing will be suboptimal. 
-	seur.milo <- makeNhoods(seur.milo, prop = 0.1, k=k, d=d, refined = TRUE, reduced_dims = "PCA")
-	pdf(file = paste(pathOut, "plots/Nhood_histogram.pdf", sep = "/"))
-	plotNhoodSizeHist(seur.milo)
-	dev.off()
-	# Most neighbourhoods are extremely large (~1000 cells), which greatly exceeds the ~60 used in the tutorials
-	}
 
-
-if(use_seurat_graph == F){
-	pathOut <- paste(pathOut, "DA/milo/reconstruct_kNN", sep = "/")
-	# See how many PCs to consider
-	library(SingleCellExperiment)
-	library(scater)
-	library(scran)
-	k=250
-	sce <- runPCA(sce, ncomponents=50)
-	percent.var <- attr(reducedDim(sce), "percentVar")
-	plot(percent.var, log="y", xlab="PC", ylab="Variance explained (%)")
-	chosen.elbow <- PCAtools::findElbowPoint(percent.var)
-	chosen.elbow
-	# This is shown to equal 4
-	# Using the same k as have done for clustering
-	d = as.numeric(chosen.elbow)
-	set.seed(123)
-	seur.milo <- buildGraph(seur.milo, k=k, d = d, reduced.dim = "PCA")
-	# Now make the neighbourhoods
-	seur.milo <- makeNhoods(seur.milo, prop = 0.1, k=k, d=d, refined = TRUE, reduced_dims = "PCA")
-	pdf(file = paste(pathOut, "plots/Nhood_histogram.pdf", sep = "/"))
-	plotNhoodSizeHist(seur.milo) 
-	dev.off()
-	# This brings the average Nhood size to around 400, still large though
-}
 
 # Count the cells within each neighbourhood
 seur.milo <- countCells(seur.milo, meta.data = as.data.frame(colData(seur.milo)), sample="Sample")
