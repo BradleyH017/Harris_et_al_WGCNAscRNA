@@ -35,8 +35,8 @@ datExpr11 <- as.data.frame(t(datExpr11))
 colors11 <- moduleColors
 names(colors11) <- colnames(datExpr11)
 
-# optional - exploring preservation of 11q23.1 trans-eQTL targets in cluster 11 specifically. 
-# Edit 10/02/22 - Have exluded CAMP, PSTPIP2 and PLCG2 as these are not significantly correlated (p<0.05, cor>0.5 with C11orf53 within the cluster 11 black module)
+# Exploring preservation of 11q23.1 trans-eQTL targets in cluster 11 specifically. --> The auxilliary module
+# Have exluded CAMP, PSTPIP2 and PLCG2 as these are not significantly correlated (p<0.05, cor>0.5 with C11orf53 within the cluster 11 black module)
 trans_only <- T
 if(trans_only == T){
 	# Put trans genes in a module called orange
@@ -70,7 +70,7 @@ names(colors_test) <- colnames(datExpr_test)
 softPower_test_old <- softPower
 
 
-# Check the common genes - This is very low, potentially too low for the analysis
+# Check the common genes
 print(paste("The percentage of common genes is ", (length(intersect(colnames(datExpr_test), colnames(datExpr11)))/ncol(datExpr11)*100), "%", sep = ""))
 
 # Reduce the expression and colours by the common genes 
