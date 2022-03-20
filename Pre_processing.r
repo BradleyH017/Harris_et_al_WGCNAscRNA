@@ -6,7 +6,7 @@
 setwd("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp")
 source('analysis.r')
 
-set <- "Immune"
+set <- "Epithelial"
 
 pathOut <- paste("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/BH_analysis/Seurat/August_2021", set, "Preprocessing", sep = "/")
 
