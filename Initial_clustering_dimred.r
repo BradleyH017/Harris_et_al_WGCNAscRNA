@@ -8,7 +8,7 @@ source('analysis.r')
 library('Seurat')
 
 # Choose set and define path
-set <- "Immune"
+set <- "Epithelial"
 pathOut = paste("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/BH_analysis/Seurat/August_2021", set, sep = "/")
 
 
@@ -47,7 +47,7 @@ seur.integrated@meta.data$nGene <- as.numeric(seur.integrated@meta.data$nGene)
 # Before saving, also calculate the log2TP10K matrix, so that this can be used in Authors cluster marker analysis (here) and seurat cluster marker analysis (next in kArray)
 ## Suggested in https://www.bioconductor.org/packages/release/bioc/vignettes/MAST/inst/doc/MAST-interoperability.html
 ##https://github.com/satijalab/seurat/discussions/4032
-## That this is also scale normalized, could use cpm or tmm for this. Initially using cpm (as feel like TMM might not perform well on single cell data, cpm is a simple converson)
+## That this is also scale normalized, could use cpm or tmm for this. Using cpm
 ## Split into 34 matrices for computation
 # Load the seur object
 counts_list <- vector("list", length = ceiling(ncol(seur.integrated@assays$RNA@counts)/1000))
