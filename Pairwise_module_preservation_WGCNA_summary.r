@@ -1,5 +1,5 @@
 # Bradley Feb 2022
-# Module preservation of cluster 11 orange module in all other clusters by differential WGCNA - SUMMARY
+# Module preservation of cluster 11 orange (auxiliary) module in all other clusters by differential WGCNA - SUMMARY
 # Following tutorial V from https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/ModulePreservation/Tutorials/
 
 # Set up
