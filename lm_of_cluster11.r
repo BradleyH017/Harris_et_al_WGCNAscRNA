@@ -77,7 +77,7 @@ tmm_PB <- function(object, assay, z_score, by){
         }
 }
 
-# NOTE: may be worth trying this both with and without z-scoring
+# Pseudo-bulk - without z-scoring so is more comparable
 tmm <- tmm_PB(seur.integrated, 'RNA', z_score = F, by = "genes")
 
 # Generate the meta, add the abundance of cluster 11  onto this
@@ -131,38 +131,10 @@ if(all(colnames(tmm) == rownames(meta)) == F){
 }
 tmm <- data.frame(t(tmm))
 
-# Univariate
+# Generate the model
 lm_c11 <- lm(cluster11 ~ tmm$C11orf53)
 lm_c11
 
-# UNivariate with meta columns - which should we account for?
-lm_batch <- lm(cluster11 ~ meta$batch)
-tidy(lm_batch) # Does't make a difference
-
-lm_Sex <- lm(cluster11 ~ meta$Sex)
-tidy(lm_Sex) # Does make a difference - include
-# PLot this
-plot(meta$Sex, cluster11, xlab = "Sex", ylab = "Cluster 11 (%)", pch = 16)
-abline(lm_Sex)
-
-
-lm_Site <- lm(cluster11 ~ meta$Site.R)
-tidy(lm_Site) # Does't make a difference
-
-# Multivariate - Including sex only because of the above
-lm_c11 <- lm(cluster11 + Sex ~ tmm$C11orf53, data=meta)
-lm_c11
-
-
-use_multi <- F
-if(use_multi == T){
-	# Multivariate - Including sex only because of the above
-	lm_c11 <- lm(cluster11 + Sex ~ tmm$C11orf53, data=meta)
-	lm_c11
-} else {
-	lm_c11 <- lm(cluster11 ~ tmm$C11orf53)
-	lm_c11
-}
 
 
 write.csv(lm_c11, paste(pathOut, "tables/lm_C11orf53_vs_cluster11.csv", sep = "/"))
@@ -186,14 +158,7 @@ tidy(lm_c11)
 #~~~~~~~~ 2. Now do this for every feature, and identify the top correlated features
 # Generate the design matrix
 library("limma")
-
-
-if(use_multi == T){
-	design <- model.matrix(~cluster11 + Sex, data=meta)
-} else {
-	design <- model.matrix(~cluster11)
-}
-
+design <- model.matrix(~cluster11)
 dim(design)
 
 # Fit a model on all features
@@ -299,38 +264,6 @@ both <- annotate_figure(both, left = text_grob("Enrichment score", rot = 90, siz
 # using sig only genes
 geneList <- toptab[toptab$adj.P.Val < 0.05,]$logFC
 names(geneList) <- rownames(toptab[toptab$adj.P.Val < 0.05,])
-
-
-
-
-
-# use a lasso regression
-library("glmnet")
-int <- meta$cluster_11
-tmm <- t(tmm)
-lasso <- cv.glmnet(tmm, int, alpha = 1)
-# Find the lambda value to reduce
-plot(lasso) 
-lasso$lambda.min
-coefl <- coef(lasso, lasso$lambda.min)
-selected_coefs <- as.matrix(coefl)[which(coefl != 0), 1]
-
-# Using an elastic model
-tmm <- t(tmm)
-elas <- cv.glmnet(tmm, int, alpha = 0.5)
-plot(elas) 
-lasso$lambda.min
-coefl <- coef(elas, lasso$lambda.min)
-selected_coefs <- as.matrix(coefl)[which(coefl != 0), 1]
-
-
-
-# Using a ridge regression
-tmm <- t(tmm)
-ridge <- cv.glmnet(tmm, int, alpha = 0 )
-plot(ridge, xvar = "lambda")
-abline(h = 0, lty = "dashed")
-
 
 
 
