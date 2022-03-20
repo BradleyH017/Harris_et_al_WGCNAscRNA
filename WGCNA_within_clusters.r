@@ -81,12 +81,9 @@ DefaultAssay(int_seur) <- "log2TP10K"
 nfeatures = 5000
 int_seur <-  FindVariableFeatures(int_seur, selection.method="vst", nfeatures = nfeatures)
 var.features <- int_seur@assays$log2TP10K@var.features
-int_genes <- c("ITPRID1", "POU2F3", "BMX", "SH2D7", "CHAT", "SH2D6", "HTR3E", "AZGP1", "ACTG1P22", "TRPM5", "OGDHL", "AVIL", "C11orf53", "COLCA1", "COLCA2")
-print(paste("The intersect of turquoise module hub genes and variable features in cluster", c, "is")) 
-intersect(var.features, int_genes)
 
 
-# Extract the expression matrix. NOTE: Need to make sure am following the options for whether z_score is T or not. First attempt using cluster 11 showed enormouse modules, very little C11orf53 expression
+# Extract the expression matrix. 
 if(pseudo_bulk == T){
 	# Then execute the function
 	exprdata <- tmm_PB(object = int_seur, assay = "RNA", z_score = z_score, by = by)
@@ -112,7 +109,7 @@ if(pseudo_bulk == T){
                 Site = c("R","R", "R","R", "R","R", "R","R", "R","R", "R","R", "R","R",  "","", "L","L", "R","R", "",""),
                 Sample = levels(factor(seur.integrated@meta.data$Sample)))
         # Add turq_hub_cluster
-	group_df <- data.frame(Sample = levels(factor(seur.integrated@meta.data$Sample)), turq_hub_cluster = c(rep("High", 4), "Low", "Low", rep("High", 8), "Low", "Low", rep("High", 5), "Low"))
+	group_df <- data.frame(Sample = levels(factor(seur.integrated@meta.data$Sample)), Blue_hub_gene_group = c(rep("High", 4), "Low", "Low", rep("High", 8), "Low", "Low", rep("High", 5), "Low"))
 	meta <- merge(meta, group_df, by = "Sample")
 	meta$Subject <- unlist(strsplit(meta$Sample, "\\."))[c(T,F)]
         for(x in seq(1:nrow(meta))){
@@ -127,7 +124,7 @@ if(pseudo_bulk == T){
 	# Binarise
 	meta <- meta %>% mutate(batch=recode(batch, "train" = 0, "valid" = 1));
         meta <- meta %>% mutate(Sex=recode(Sex, "F" = 0, "M" = 1))
-        meta <- meta %>% mutate(turq_hub_cluster=recode(turq_hub_cluster, "Low" = 0, "High" = 1))
+        meta <- meta %>% mutate(Blue_hub_gene_group=recode(Blue_hub_gene_group, "Low" = 0, "High" = 1))
 	meta$Site.R <- rep(0, nrow(meta))
         for(r in seq(1:nrow(meta))){
                 if(meta$Site[r] == "R"){
@@ -179,11 +176,6 @@ if (!gsg$allOK)
   # Remove the offending genes and samples from the data:
   t_exprdata = t_exprdata[gsg$goodSamples, gsg$goodGenes]
 }
-
-# Print the difference between interesting genes and those included. Many genes will be removed for having no expression
-int_genes <- c("ITPRID1", "POU2F3", "BMX", "SH2D7", "CHAT", "SH2D6", "HTR3E", "AZGP1", "ACTG1P22", "TRPM5", "OGDHL", "AVIL", "C11orf53", "COLCA1", "COLCA2", "FCGBP", "MUC2", "CLCA1")
-print("Interesting genes not included downstream =")
-setdiff(int_genes, colnames(t_exprdata))
 
 print(paste("The number of genes remaining in the cluster to analyse = ", ncol(t_exprdata)))
 
@@ -395,49 +387,6 @@ labeledHeatmap(Matrix = moduleTraitCorSig,
 dev.off()
 
 
-# EXPERIMENTAL
-remove_grouping <- T
-if(remove_grouping == T & c == 11){
-	# Remove blue hub gene cluster
-	moduleTraitCor_no <- moduleTraitCor[,-which(colnames(moduleTraitCor) == "turq_hub_cluster")]
-	moduleTraitPvalue_no <- moduleTraitPvalue[,-which(colnames(moduleTraitPvalue) == "turq_hub_cluster")]
-	# p-value adjust
-	BH_pvals_no <- p.adjust(moduleTraitPvalue_no, method = "BH")
-	BH_pvals_df_no <- matrix(BH_pvals_no, ncol = ncol(moduleTraitPvalue_no), nrow = nrow(moduleTraitPvalue_no))
-	rownames(BH_pvals_df_no) <- rownames(moduleTraitPvalue_no)
-	colnames(BH_pvals_df_no) <- colnames(moduleTraitPvalue_no)
-	# plot the ones with any FDR correlations < 0.1
-	moduleTraitCorSig_no <- moduleTraitCor_no
-	for(r in 1:nrow(BH_pvals_df_no)){
-		if(sum(BH_pvals_df_no[r,]<0.1) == 0){
-			BH_pvals_df_no[r, ] <- rep(NA,ncol(BH_pvals_df_no))
-		}
-	}
-	BH_pvals_df_no <- BH_pvals_df_no[complete.cases(BH_pvals_df_no),]
-	moduleTraitCorSig_no <- moduleTraitCorSig_no[rownames(moduleTraitCorSig_no) %in% rownames(BH_pvals_df_no),]
-	modnames_no <- gsub("ME", "", rownames(BH_pvals_df_no))
-	modcols_no <- rownames(BH_pvals_df_no)
-	pdf(file = paste(pathOut, "plots/results/Module_trait_matrix_BH_pvals_no_grouping.pdf", sep = "/"))
-	## Will display correlations and their p-values
-	textMatrix_no = paste(signif(moduleTraitCorSig_no, 2), "\n(",
-	                   signif(BH_pvals_df_no, 2), ")", sep = "");
-	dim(textMatrix_no) = dim(moduleTraitCorSig_no)
-	par(mar = c(8, 10, 3, 3));
-	# Display the correlation values within a heatmap plot
-	labeledHeatmap(Matrix = moduleTraitCorSig_no,
-	               xLabels = names(meta)[-grep("cluster", names(meta))],
-	               yLabels = modcols_no,
-	               ySymbols = modcols_no,
-	               colorLabels = FALSE,
-	               colors = blueWhiteRed(50),
-	               textMatrix = textMatrix_no,
-	               setStdMargins = FALSE,
-	               cex.text = 1.0,
-	               zlim = c(-1,1),
-	               main = paste("Module-trait relationships"))
-	dev.off()
-}
-
 ######Then want to quantify the associations between our actual genes and the trait of interest 
 #(in this case the genotype). Also want to define a quantitative measure of module membership (MM)
 #MM is the correlation of an eigen gene with with the gene expression profile it is based upon. 
@@ -467,26 +416,6 @@ names(geneTraitSignificance) = paste("GS.", names(turq), sep="");
 names(GSPvalue) = paste("p.GS.", names(turq), sep="");
 
 save.image(paste(pathOut, "objects/UpTo_geneTraitSignificance.Rds", sep = "/"))
-
-
-
-
-#Can use the GS and MM to caluculate the weighting of genes and thier module membership in
-#interesting modules
-#module = "maroon" #Picked this based on the result of above heatmap. Change to look at different modules
-#column = match(module, modNames);
-#moduleGenes = moduleColors==module;
-
-
-#pdf(file = paste(pathOut, "/plots/results/", module, "_scattergraph.pdf", sep = ""))
-#verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
-#                   abs(geneTraitSignificance[moduleGenes, 1]),
-#                   xlab = paste("Module Membership in", module, "module"),
-#                   ylab = "Gene significance for C11orf53 expression",
-#                   main = paste("Module membership vs. gene significance\n"),
-#                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = module)
-#dev.off()
-
 
 geneInfo0 = data.frame(colnames(t_exprdata),
                        moduleColor = moduleColors,
