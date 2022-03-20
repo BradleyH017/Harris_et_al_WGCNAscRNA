@@ -26,30 +26,9 @@ pathOut = paste("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/BH_analysis/Seurat
 load(paste(pathOut, "objects/Processed_seur.integrated.clusteredRds", sep = "/"))
 
 #1. GSEA of the trans-eQTLs (Peter's and mine) against the markers of each cluster
-trans <- read.csv("/exports/igmm/eddie/dunlop-lab/BradleyH/Human_RNA-Seq/data/2021PEER_FineMapping/N219_counts_nolog_TMM_INT_AGE_BMI_Sex_Site_Batch/eQTL/trans_eQTL.csv")
-trans <- trans[,-1]
-trans <- trans[trans$snp == "rs3087967",]
-
-# Convert to gene names
-library(AnnotationDbi)
-library(org.Hs.eg.db)
-
-MgeneList2entrez <- AnnotationDbi::mapIds(keys = as.character(trans$gene),  x = org.Hs.eg.db, keytype = "ENSEMBL", column = "SYMBOL",
-                                          multiVals = "first");
-DF_MgeneList2entrez <- data.frame("gene" = names(MgeneList2entrez), "human_SYMBOL" = MgeneList2entrez);
-        rownames(DF_MgeneList2entrez) <- NULL;
-        head(DF_MgeneList2entrez);
-trans <- merge(trans, DF_MgeneList2entrez, by = "gene")
-trans[trans$gene == "ENSG00000271615", which(colnames(trans) == "human_SYMBOL")] <- "ACTG1P22"
-trans <- trans[!duplicated(trans$human_SYMBOL),]
-trans <- trans[!is.na(trans$human_SYMBOL),]
-
-trans_list <- vector("list", length = 3)
-names(trans_list) <- c("nom_sig_RNASeq_rs3087967", "FDR_sig_RNASeq_rs3087967", "FDR_sig_Vaughan_Shaw_HT12")
-
-trans_list[[1]] <- trans[trans$pvalue < 0.05,]$human_SYMBOL
-trans_list[[2]] <- trans[trans$FDR < 0.1,]$human_SYMBOL
-trans_list[[3]] <- c("LRMP", "SH2D6", "PSTPIP2", "HTR3E", "TRPM5", "HTR3C", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP", "ANKHD1", "EIF4EBP", "GIN1", "SPAG6")
+trans_list <- vector("list", length = 1)
+names(trans_list) <- c("FDR_sig_Vaughan_Shaw_HT12")
+trans_list[[1]] <- c("LRMP", "SH2D6", "PSTPIP2", "HTR3E", "TRPM5", "HTR3C", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP", "ANKHD1", "EIF4EBP", "GIN1", "SPAG6")
 
 # Now read in the markers of mine
 if(set == "Epithelial"){
