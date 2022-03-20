@@ -26,8 +26,7 @@ clusters <- paste("cluster_", clusters, sep = "")
 
 
 # Load the expression data used in each analysis, extract that of the trans-eQTL targets only + C11orf53 (C11orf53 expression was removed to look for e=correlations with in the WGCNA. So need to re-append this onto the expression)
-#want <- c("C11orf53", "LRMP", "SH2D6", "PSTPIP2", "HTR3E", "TRPM5", "HTR3C", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP", "ANKHD1", "GIN1", "SPAG6")
-want <- c("C11orf53", "LRMP", "SH2D6", "PSTPIP2", "HTR3E", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP")
+want <- v("C11orf53", "LRMP", "SH2D6", "HTR3E", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PTGS1", "IL17RB", "AZGP1", "GNG13")
 expr_list <- vector("list", length = length(clusters))
 names(expr_list) <- clusters
 for(cluster in seq_along(clusters)){
