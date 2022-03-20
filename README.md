@@ -7,12 +7,13 @@ To replicate the analysis performed in this paper, download the datasets into an
 
 ### Preprocessing and clustering - Smillie
   1. Pre_processing.r
-  2. kArray_clustering_gsea_vs_authors.r
-  3. kArray_sum.r
-  4. Doublet.detection.r
-  5. Fully_processed_clustering.r
-  6. Cluster_merging.r
-  7. Interesting_cluster_analysis.temp.R
+  2. Initial_clustering_dimred.r
+  3. kArray_clustering_gsea_vs_authors.r
+  4. kArray_sum.r
+  5. Doublet.detection.r
+  6. Fully_processed_clustering.r
+  7. Cluster_merging.r
+  8. Interesting_cluster_analysis.temp.R
 
 ### WGCNA - Smillie
   1. WGCNA_across_clusters_Peters.r
