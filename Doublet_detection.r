@@ -8,7 +8,7 @@ source(analysis.r')
 library('Seurat')
 library(DoubletFinder)
 
-## Now use this to generate the file path
+# Now use this to generate the file path
 set = "Epithelial"
 pathOut = paste("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/BH_analysis/Seurat/August_2021", set, sep = "/")
 
