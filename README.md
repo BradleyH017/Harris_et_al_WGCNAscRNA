@@ -12,8 +12,9 @@ To replicate the analysis performed in this paper, download the datasets into an
   4. kArray_sum.r
   5. Doublet.detection.r
   6. Fully_processed_clustering.r
-  7. Cluster_merging.r
-  8. Interesting_cluster_analysis.temp.R
+  7. DE_between_cluster.r
+  8. Cluster_merging.r
+  9. Interesting_cluster_analysis.temp.R
 
 ### WGCNA - Smillie
   1. WGCNA_across_clusters_Peters.r
