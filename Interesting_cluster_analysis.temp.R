@@ -137,8 +137,8 @@ for(x in seq(1:length(cluster_list))){
 }
 
 
-# Now plot the variability of the FDR significant trans-eQTLs, in addition to COLCA1/2.
-genes.to.test <- c("C11orf53", "COLCA1", "COLCA2", "LRMP", "SH2D6", "PSTPIP2", "HTR3E", "TRPM5", "HTR3C", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP", "ANKHD1", "GIN1")
+# Now plot the variability of the FDR significant trans-eQTLs, in addition to C11orf53, COLCA1/2.
+genes.to.test <- c(c("C11orf53", "COLCA1", "COLCA2"), trans_list[[3]])
 genes.to.test <- intersect(genes.to.test, rownames(seur.integrated@assays$RNA))
 
 rbind.named.fill <- function(x) {
