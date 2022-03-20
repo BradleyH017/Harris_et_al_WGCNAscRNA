@@ -11,16 +11,11 @@ library(dynamicTreeCut)
 library(WGCNA)
 options(stringsAsFactors=F)
 
-####### TRY Z-SCORING BEFORE PSEUDO-BULKING #########
-####### TRY SCT #########
 
 # Now load in the seurat object 
 from_file = F
 z_score = T
 by = "genes"
-seurat_variable = F
-nfeatures = 5000
-MAD = F
 nom_trans = T
 
 # Set up
@@ -121,16 +116,6 @@ if(from_file ==T){
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~ Begin the analysis
-# First attempt using MAD_5000 most variable genes
-if(MAD == T){
-	exprdata$MAD <- apply(exprdata, 1, mad)
-	exprdata <- exprdata[order(-exprdata$MAD),]
-	exprdata <- exprdata[1:5000, -which(colnames(exprdata) == "MAD")]
-	print("Genes kept after MAD filtering")
-	rownames(exprdata)
-}
-
-# Second attempt using nominally significant trans-eQTLs - This time using Peter's eQTLs
 if(nom_trans == T){
 	# Load the trans-eQTLs
 	if(from_file == F){
@@ -178,34 +163,7 @@ if(nom_trans == T){
 
 # Save trans included
 write.csv(trans[trans$human_SYMBOL %in% rownames(exprdata),], paste(pathOut, "WGCNA_across_clusters_Peter/tables/trans_nom_significant_in_smillie.csv", sep = "/"))
-	
-# Third attempt using seurat Variable genes defined variable genes before pseudo-bulking and z-scoring
-if(seurat_variable == T & z_score == T){
-	# Remove the old exprdata
-	rm(exprdata)
-	# Identify and extract the variable genes
-	DefaultAssay(seur.integrated) <- "log2TP10K"
-	nfeatures = nfeatures
-	seur.integrated <-  FindVariableFeatures(seur.integrated, selection.method="vst", nfeatures = nfeatures)
-	var.features <- seur.integrated@assays$log2TP10K@var.features
-	int_genes <- c("ITPRID1", "POU2F3", "BMX", "SH2D7", "CHAT", "SH2D6", "HTR3E", "AZGP1", "ACTG1P22", "TRPM5", "OGDHL", "AVIL", "C11orf53", "COLCA1", "COLCA2")
-	intersect(var.features, int_genes)
-	int_seur <- subset(seur.integrated, features = var.features)
-	# Then pseudo-bulk these and z-score
-	exprdata <- tmm_PB(object = int_seur, assay = "RNA", z_score = z_score, by = by)
-	# Modify the pathOut
-	pathOut <- paste(pathOut, "vst_variable_5000", sep = "/")
-}
-	
-
-
-#Checking interesting genes
-int_genes <- c("ITPRID1", "POU2F3", "BMX", "SH2D7", "CHAT", "SH2D6", "HTR3E", "AZGP1", "ACTG1P22", "TRPM5", "OGDHL", "AVIL", "C11orf53", "COLCA1", "COLCA2", "FCGBP", "MUC2", "CLCA1")
-intersect(rownames(exprdata), int_genes)
-setdiff(int_genes, rownames(exprdata))
-
-
-
+		
 #1. QC
 # Rearrange the meta so that it matches the order of samples in the expression matrix
 t_exprdata <- as.data.frame(t(exprdata))
@@ -482,23 +440,6 @@ names(GSPvalue) = paste("p.GS.", names(C11orf53), sep="");
 save.image(paste(pathOut, "UpTo_geneTraitSignificance.Rds", sep = "/"))
 
 
-##Can use the GS and MM to caluculate the weighting of genes and thier module membership in
-#interesting modules
-#module = "turquoise" #Picked this based on the result of above heatmap. Change to look at different modules
-#column = match(module, modNames);
-#moduleGenes = moduleColors==module;
-
-
-#pdf(file = paste(pathOut, "/plots/results/", module, "_scattergraph.pdf", sep = ""))
-#verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
-#                   abs(geneTraitSignificance[moduleGenes, 1]),
-#                   xlab = paste("Module Membership in", module, "module"),
-#                   ylab = "Gene significance for C11orf53 expression",
-#                   main = paste("Module membership vs. gene significance\n"),
-#                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = module)
-#dev.off()
-
-
 geneInfo0 = data.frame(colnames(t_exprdata),
                        moduleColor = moduleColors,
                        geneTraitSignificance,
@@ -596,11 +537,10 @@ write.csv(kIM, paste(pathOut, "tables/all_intramodular_connectivity_scores.csv",
 
 
 
-# Now do an enrichment of mine and Peter's trans-eQTLs against the genes of each module, ranked by their kWithin
-trans <- vector("list", length = 2)
-names(trans) <- c("Vaughan_Shaw_HT12", "RNA_Seq")
+# Now do an enrichment of  Peter's trans-eQTLs against the genes of each module, ranked by their kWithin
+trans <- vector("list", length = 1)
+names(trans) <- c("Vaughan_Shaw_HT12")
 trans[[1]] <- c("LRMP", "SH2D6", "PSTPIP2", "HTR3E", "TRPM5", "HTR3C", "ALOX5", "OGDHL", "BMX", "MATK", "SH2D7", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "AZGP1", "GNG13", "CAMP", "ANKHD1", "EIF4EBP", "GIN1", "SPAG6")
-trans[[2]] <- c("ITPRID1", "POU2F3", "BMX", "SH2D7", "CHAT", "SH2D6", "HTR3E", "AZGP1", "ACTG1P22", "TRPM5", "OGDHL", "AVIL")
 
 
 # Do enrichment
@@ -626,7 +566,7 @@ fgseaResults <- fgseaResults[,-8]
 write.csv(fgseaResults, paste(pathOut, "tables/fgseaRes_eQTLs_in_all_modules_kIM.csv", sep = "/"))
 
 
-pdf(file = paste(pathOut, "plots/results/fgsea.kIM.RNASeq_trans_in_turquoise.pdf", sep = "/"))
+pdf(file = paste(pathOut, "plots/results/fgsea.kIM.RNASeq_trans_in_blue.pdf", sep = "/"))
 plotEnrichment(trans[['RNA_Seq']], geneList)
 dev.off()
 
@@ -646,25 +586,13 @@ fgseaResults <- fgseaResults[,-8]
 
 write.csv(fgseaResults, paste(pathOut, "tables/fgseaRes_eQTLs_in_all_modules_MM.csv", sep = "/"))
 
-pdf(file = paste(pathOut, "plots/results/fgsea.MM.RNASeq_trans_in_turquoise.pdf", sep = "/"))
+pdf(file = paste(pathOut, "plots/results/fgsea.MM.RNASeq_trans_in_blue.pdf", sep = "/"))
 plotEnrichment(trans[['Vaughan_Shaw_HT12']], geneList)
 dev.off()
 
-# EXPLORING #
+########### Dividing samples by their relative expression of interesting module hub genes
 
-## Plotting a heatmap of samples with z-scores for the genes hub genes 
-## Subset for blue hub genes
-hub_k <- rownames(kIM[kIM$moduleColor == "blue" & kIM$kWithin > 0.7,])
-hub_MM <- geneInfo[geneInfo$moduleColor == "blue" & geneInfo$MM.blue > 0.7,]$colnames.t_exprdata.
-hub <- intersect(hub_k, hub_MM)
-
-
-# Exploratory - increased kIM and MM threshold to > 0.8.  Comment these lines out if want to replicate the current results.
-hub_k <- rownames(kIM[kIM$moduleColor == "blue" & kIM$kWithin > 0.8,])
-hub_MM <- geneInfo[geneInfo$moduleColor == "blue" & geneInfo$MM.blue > 0.8,]$colnames.t_exprdata.
-hub <- intersect(hub_k, hub_MM)
-
-# Exploratory using genes from blue module (adjacency > 0.3). Comment these 2 lines out if want to replicate the current results.
+## Plotting a heatmap of samples with z-scores for the genes hub genes. Starting with those with adjacency > 0.3
 hub_blue <- c("PLCG2", "HCK", "MATK", "TRPM5", "ALOX5", "HTR3E", "SH2D6", "PSTPIP2", "BMX", "PTGS1", "GNG13", "SH2D7")
 hub_k <- rownames(kIM[kIM$moduleColor == "blue" & kIM$kWithin > 0.7,])
 hub_MM <- geneInfo[geneInfo$moduleColor == "blue" & geneInfo$MM.blue > 0.7,]$colnames.t_exprdata.
