@@ -37,7 +37,7 @@ To replicate the analysis performed in this paper, download the datasets into an
   7. Elmentaite_cluster_merging.r
   8. Elmentaite_Interesting_cluster_analysis.r
 
-### Genotyping and variability analysis
+### Genotyping and gene variability analysis
   1. Freebayes_variant_calling.bash
   2. samtools_variant_calling.bash
   3. Gene_variability_summary_both_datasets.R
