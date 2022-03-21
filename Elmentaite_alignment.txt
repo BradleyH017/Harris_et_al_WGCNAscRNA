@@ -1,0 +1,84 @@
+# Downloading raw fast data
+#Obtained meta from : https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-9543/samples/
+
+# Downloaded fast for samples which non CD45 positive and colonic
+Human_colon_16S8002627
+Human_colon_16S8000473
+Human_colon_16S8000477
+Human_colon_16S8000481
+Human_colon_16S8000479
+Human_colon_16S8123908
+Human_colon_16S8002630
+Human_colon_16S8000475
+
+# These are from 3 samples, but across ascending, descending, transverse, sigmoid colon and rectum
+
+# Alignment 
+# Want this to be done as close as possible to the alignment by Smillie et al
+# Used cell ranger version 3.02 to align to the hg19 transcriptome and extract the "cell" and "UMI" barcodes.
+module load igmm/apps/cellranger/3.0.2
+
+
+# To generate reference: https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#hg19mm10_2.1.0
+wget ftp://ftp.ensembl.org/pub/grch37/release-87/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz
+gunzip Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz
+
+
+wget ftp://ftp.ensembl.org/pub/grch37/release-87/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz
+gunzip Homo_sapiens.GRCh37.87.gtf.gz
+
+
+cellranger mkgtf Homo_sapiens.GRCh37.87.gtf Homo_sapiens.GRCh37.87.filtered.gtf \
+                 --attribute=gene_biotype:protein_coding \
+                 --attribute=gene_biotype:lincRNA \
+                 --attribute=gene_biotype:antisense \
+                 --attribute=gene_biotype:IG_LV_gene \
+                 --attribute=gene_biotype:IG_V_gene \
+                 --attribute=gene_biotype:IG_V_pseudogene \
+                 --attribute=gene_biotype:IG_D_gene \
+                 --attribute=gene_biotype:IG_J_gene \
+                 --attribute=gene_biotype:IG_J_pseudogene \
+                 --attribute=gene_biotype:IG_C_gene \
+                 --attribute=gene_biotype:IG_C_pseudogene \
+                 --attribute=gene_biotype:TR_V_gene \
+                 --attribute=gene_biotype:TR_V_pseudogene \
+                 --attribute=gene_biotype:TR_D_gene \
+                 --attribute=gene_biotype:TR_J_gene \
+                 --attribute=gene_biotype:TR_J_pseudogene \
+                 --attribute=gene_biotype:TR_C_gene
+
+
+# Mkref
+cellranger mkref --genome=hg19 \
+                 --fasta=Homo_sapiens.GRCh37.dna.primary_assembly.fa \
+                 --genes=Homo_sapiens.GRCh37.87.filtered.gtf
+
+
+# Following : https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/using/tutorial_ct
+# Then ran cell ranger counts
+# Using --chemistry=fiveprime as the chromium chip used is 5' according to the authors. Do this for each $SAMP
+cellranger count --id=$SAMP \
+--fastqs=/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/Elmentaite/data/raw_fastq \
+--sample=$SAMP \
+--transcriptome=/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/Elmentaite/data/ref/hg19 \
+--chemistry=fiveprime
+
+# Then need to aggregate the counts into a single matrix
+# Following : https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/using/tutorial_ag
+
+# Need to create a .csv file for the counts of each aligned samples
+# This is done using the h5 files from the alignment of each sample
+cd /exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/Elmentaite/data
+mkdir cell_ranger_aggr
+cd cell_ranger_aggr
+# Then within this directory, need to make a txt file that has a sample name and a path to the outs/filtered_feature_bc_matrix.h5 file for each
+
+# Within this directory, then run
+cellranger aggr --id=Elmentaite_aggr --csv=Elmentaite_aggr.csv
+
+
+
+
+
+
+
