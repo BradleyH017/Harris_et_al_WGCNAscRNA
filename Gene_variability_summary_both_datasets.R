@@ -23,9 +23,9 @@ library(labeling)
 # Choose set and define path - Editting to use te unmerged clusters for epithelial (as not clusters were merged), but merged for Immune
 set <- "Epithelial"
 pathOut = paste("/exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/BH_analysis/Seurat/August_2021", set, sep = "/")
-genes.to.test <- c("C11orf53", "COLCA1", "COLCA2", "LRMP", "SH2D6", "PSTPIP2", "HTR3C", "ALOX5", "OGDHL", "MATK", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "GNG13", "CAMP", "ANKHD1", "GIN1", "SPAG6", "SH2D7", "BMX", "HTR3E", "AZGP1", "TRPM5", "OGDHL")
+genes.to.test <- c("C11orf53", "COLCA1", "COLCA2", "LRMP", "SH2D6", "PSTPIP2", "HTR3C", "ALOX5", "OGDHL", "MATK", "PIK3CG", "PLCG2", "PTGS1", "IL17RB", "GNG13", "CAMP", "ANKHD1", "GIN1", "SPAG6", "SH2D7", "BMX", "HTR3E", "AZGP1", "TRPM5")
 
-# Load the variability results
+# Load the variability results - This is from interesting cluster analysis script
 load(paste(pathOut, "objects/Processed_seur.integrated.clusteredRds", sep = "/"))
 genes.to.test <- intersect(genes.to.test, rownames(seur.integrated@assays$RNA))
 var_results_smil <- vector("list", length = length(genes.to.test))
