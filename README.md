@@ -33,8 +33,9 @@ To replicate the analysis performed in this paper, download the datasets into an
   3. Elmentiate_kArray_sum.r
   4. Elmentaite_Doublet_removal.r
   5. Elmentaite_Fully_processed_clustering.r
-  6. Elmentaite_cluster_merging.r
-  7. Elmentaite_Interesting_cluster_analysis.r
+  6. Elmentaite_DE_between_clusters.r
+  7. Elmentaite_cluster_merging.r
+  8. Elmentaite_Interesting_cluster_analysis.r
 
 ### Genotyping and variability analysis
   1. Freebayes_variant_calling.bash
