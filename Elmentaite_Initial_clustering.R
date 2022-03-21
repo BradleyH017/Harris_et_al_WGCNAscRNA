@@ -21,7 +21,7 @@ split.by = "orig.ident"
 vars.to.regress = "MT"
 
 
-# Doing the integration with the doublet retains - Only need to do this once, then do the kArray to see which k value best atches the authors clusters and is likley tobe the most useful
+# Doing the integration with the doublet retains - Only need to do this once, then do the kArray to see which k value best atches the authors clusters and is likley to be the most useful
 seur.list <- SplitObject(seur, split.by = split.by)
 seur.list <- lapply(X = seur.list, FUN = SCTransform, vars.to.regress = vars.to.regress)
 features <- SelectIntegrationFeatures(object.list = seur.list, nfeatures = 3000)
