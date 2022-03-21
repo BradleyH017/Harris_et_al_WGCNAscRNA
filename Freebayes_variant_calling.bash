@@ -78,7 +78,7 @@ samtools view -H test3.bam | grep '^@RG'
 # Now can run freebayes on all samples - NOTE: For array 6 and 7 (the replaced header samples), need to run this on test3.bam
 # Want to run this on all samples simultaneously
 # Do this in an array script. Limited to just the region surrounding rs3087967 (11:111,156,830-111,156,840 ... SNP is 111,156,836)
-# see /exports/igmm/eddie/CCGG-tumour-WGS/BradTemp/Elmentaite/alignment/Freebayes_array.sh
+freebayes -f $REFasta -r $region "$samp"/outs/testp.bam > temp/$samp.vcf
 
 
 
