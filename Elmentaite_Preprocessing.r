@@ -281,25 +281,11 @@ dev.off()
 mad_cutoff <- 2.5
 # Not removing on the relative basis of MT% as this takes us above 100%
 # Even if use a cut off comparable to the other dataset, this leaves us with 1900 cells only
-# For now, won't subset on the basis of MT% or RP%
+# Don't subset on the basis of MT% or RP%
 
-# Old way:
-#keep <- qc.lib2[abs(qc.lib2$nCount_RNA) < mad_cutoff & abs(qc.lib2$nFeature_RNA) < mad_cutoff  & abs(qc.lib2$RP) < mad_cutoff, ]
 
 # Not on the basis of MT% or RP% 
 keep <- qc.lib2[abs(qc.lib2$nCount_RNA) < mad_cutoff & abs(qc.lib2$nFeature_RNA) < mad_cutoff,]
-
-#### From other script, adjusted to set the relative top threshold based on Smillie analysis
-#if(median(qc.lib$MT)+(2.5*mad(qc.lib$MT)) < 20){
-#	keep <- keep[rownames(keep) %in% rownames(seur@meta.data[seur@meta.data$MT < 20,]),]
-#	} else {
-#		if(median(qc.lib$MT)+(2.5*mad(qc.lib$MT)) > 56){
-#			keep <- keep[rownames(keep) %in% rownames(seur@meta.data[seur@meta.data$MT < 56,]),]
-#			} else {
-#				keep <- qc.lib2[abs(qc.lib2$MT) < mad_cutoff,]
-#			}
-#		}
-nrow(keep)
 
 
 # Diagnostic plots to see the cells we have discarded and retained
@@ -315,11 +301,6 @@ seur@meta.data <- seur@meta.data[order(rownames(seur@meta.data)),]
 all(rownames(seur@meta.data) == rownames(together))
 seur@meta.data$retain <- together$retain
 
-
-# Plot
-#pdf(file = paste(pathOut, "MT_perc_cutoffs_relative_absolute.pdf", sep = "/"))
-#hist(as.numeric(seur@meta.data$MT), xlab = "MT%", main = "MT% distribution. Red = median, Blue = hard") + abline(v=c(as.numeric(median(seur@meta.data$MT)), as.numeric(20)), col = c("red", "blue"))
-#dev.off()
 
 # Are the distributions similar for each sample?
 qc.lib$Sample <-  unlist(strsplit(rownames(qc.lib), "\\-"))[c(F,T)]
@@ -385,14 +366,6 @@ dev.off()
 seur@meta.data$log10GenesPerUMI <- log10(seur@meta.data$nFeature_RNA) / log10(seur@meta.data$nCount_RNA)
 mean_log10GenesPerUMI <- seur@meta.data %>% pull(log10GenesPerUMI) %>% mean() %>% signif(6)
 
-#p <- seur@meta.data %>%
-#        ggplot(aes(x=log10GenesPerUMI, color = Subject, fill = Sample)) +
-#        xlab("log10GenesPerUMI") +
-#        geom_density(alpha = 0.2) +
-#        theme_classic() +
-#        geom_vline(xintercept = mean_log10GenesPerUMI) +
-#        facet_grid(Subject ~ replicate) + theme(legend.position = "none")
-
 
 
 # Analysing cell sparsity
@@ -449,7 +422,7 @@ good.genes <- setdiff(rownames(seur1[['RNA']]), names(sparse.genes[sparse.genes 
 seur_final <- subset(seur1, cells = good_cells)
 seur_final <- subset(seur_final, features = good.genes)
 
-# Before doublet removal, have a total of 
+# Save
 save(seur_final, file = paste(pathOut, "raw_seur_GeneCellQC.RData", sep = "/"))
 
 
