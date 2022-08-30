@@ -1,5 +1,5 @@
 # Harris_et_al_WGCNAscRNA
-Repository for code used in the analysis of scRNAseq data using WGCNA
+Repository for code used in the WGCNA/scRNAseq analysis of colonic epithelium: https://www.nature.com/articles/s41598-022-17887-5#Sec21
 
 
 ## Pipeline order
